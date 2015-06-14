@@ -70,43 +70,7 @@ app.post('/api/tweets', ensureAuthentication, function(req, res) {
     	res.send({
     		tweet: _t.toClient()
     	})
-
-    // see mentor's solution
-
-    // this works but not efficient at all
-    // res.send({
-     //    	tweet: _t.toClient(function(err, __t) {
-     //    		if (err) {
-     //    			console.log('error on tweet client')
-     //    		}
-     //    		console.log('success toClient', __t)
-     //    		return __t
-     //    	})
-    	// });
     });
-
-     // Tweet.create({text: tweet}, function(err, _t) {
-     // 	if ( err ) {
-     // 		console.log('err');
-     // 		return res.sendStatus(500)
-     // 	}
-
-     // 	console.log('created!!!', _t);
-     // 	Tweet.toClient(function(err, __t) {
-     // 		console.log(__t)
-     // 		if (err) {
-     // 			console.log('err on toclient')
-     // 		}
-     // 		res.send({tweet: __t})
-     // 	})
-     // })
-
-    // var tweet = req.body.tweet;
-    // tweet.id = shortId.generate();
-    // tweet.userId = req.user.id;
-    // tweet.created = Date.now() / 1000 | 0;
-
-    // fixtures.tweets.push(tweet);
 
 });
 
@@ -128,48 +92,7 @@ app.post('/api/users', function(req, res) {
         })
     })
 })
-//Example 1
-// app.post('/api/users', function(req, res) {
-// 	console.log(req.body);
-// 	var newUser = req.body.user,
-// 	isConflict = false;
 
-// 	var user = new User({
-// 		id: newUser.id,
-// 		name: newUser.name,
-// 		email: newUser.email,
-// 		password: newUser.password
-// 	});
-
-// 	user.save(function(err) {
-// 		if (err) {
-// 			if (err.code === 11000) {
-// 				res.sendStatus(409);
-// 			} else {
-// 				res.sendStatus(500);
-// 			}
-// 		} else {
-// 			res.sendStatus(200);
-// 		}
-// 	})
-
-// Early Example
-// for (var i = 0; i < fixtures.users.length; i++) {
-// 	if (fixtures.users[i].id === newUser.id) {
-// 		console.log('reg conflict');
-// 		isConflict = true;
-// 	}
-// }
-// if (isConflict) {
-// 	return res.sendStatus(409);
-// } else {
-// 	newUser.followingIds = [];
-// 	fixtures.users.push(newUser);
-// 	req.logIn(newUser, function(err) {
-// 		return res.sendStatus(200)	
-// 	})	
-// }
-// })
 
 app.put('/api/users/:userId', ensureAuthentication, function(req, res) {
     var un = req.params.userId,
@@ -237,55 +160,26 @@ app.get('/api/tweets', function(req, res) {
     }
 
     //console.log(Tweet)
-    var _tweets = Tweet.find({userId: userId}, function(err, _t) {
+    Tweet.find({userId: userId}, function(err, _t) {
 
     	if (  err ) {
-    		console.log('err')
+    		console.log('err');
+    		return res.sendStatus(500);
     	}
 
     	if ( !_t ) {
-    		console.log('no _t')
+    		console.log('no _t');
+    		return res.sendStatus(500);
     	}
+
     	console.log('_t -->', _t)
-    	return _t
+    	
+    	res.send({
+    		tweets: _t.toClient()
+    	})
+
     });
-    //var sortedT = _tweets.toClient();
-    console.log(_tweets)
-
-   //  Tweet.find({userId: userId}, function(err, _t) {
-
-   //  	console.log('_t -->', _t )
-
-   //  	if ( err ) {
-   //  		console.log('err');
-   //  		return res.sendStatus(500)
-   //  	}
-
-   //  	if ( !_t ) {
-   //  		console.log('no data');
-   //  		return res.sendStatus(500)
-   //  	}
-
-	  //   var sorted_t = _t.sort(function(t1, t2) {
-	  //       if (t1.created > t2.created) {
-	  //           return -1;
-	  //       } else if (t1.created === t2.created) {
-	  //           return 0;
-	  //       } else {
-	  //           return 1;
-	  //       }
-   //  	})
-
-   //  	// _t is an array & not an object of conn //<------
-
-   //  	console.log(Tweet)
-
-	  //   res.send({
-			// tweets: sorted_t.toClient.call(Tweet)
-   //  	});
-   //  });
-
-
+ 
 });
 
 app.get('/api/tweets/:tweetId', function(req, res) {
