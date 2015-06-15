@@ -49,27 +49,27 @@ app.post('/api/auth/logout', function(req, res) {
 
 app.post('/api/tweets', ensureAuthentication, function(req, res) {
     var tweet = req.body.tweet.text,
-    	userId = req.user.id,
+        userId = req.user.id,
         Tweet = conn.model('Tweet');
 
-        console.log('post tweet', tweet);
+    console.log('post tweet', tweet);
 
     var nTweet = new Tweet({
-    	userId : userId, 
-    	created : Date.now() / 1000 | 0,
-    	text: tweet
+        userId: userId,
+        created: Date.now() / 1000 | 0,
+        text: tweet
     })
 
     nTweet.save(function(err, _t) {
-    	//console.log('_t', _t)
-    	if (err) {
-    		console.log('saved ntweet')
-    	}
+        //console.log('_t', _t)
+        if (err) {
+            console.log('saved ntweet')
+        }
 
-    	//console.log('res send', nTweet)
-    	res.send({
-    		tweet: _t.toClient()
-    	})
+        //console.log('res send', nTweet)
+        res.send({
+            tweet: _t.toClient()
+        })
     });
 
 });
@@ -100,7 +100,7 @@ app.put('/api/users/:userId', ensureAuthentication, function(req, res) {
     console.log(un, pw)
 
     if (req.user.id !== req.params.userId) {
-    	return res.sendStatus(403);
+        return res.sendStatus(403);
     }
 
     conn.model('User').findOneAndUpdate({
@@ -150,61 +150,56 @@ app.get('/api/users/:userId', function(req, res) {
 });
 
 app.get('/api/tweets', function(req, res) {
-    var userId = req.query.userId, 
-    Tweet = conn.model('Tweet');
-
-    console.log('tweets get userId query ->', userId)
-
-    if (!userId) {
-        return res.sendStatus(400);
+    if (!req.query.userId) {
+        return res.sendStatus(400)
     }
 
-    //console.log(Tweet)
-    Tweet.find({userId: userId}, function(err, _t) {
+    var Tweet = conn.model('Tweet'),
+        query = {
+            userId: req.query.userId
+        },
+        options = {
+            sort: {
+                created: -1
+            }
+        }
 
-    	if (  err ) {
-    		console.log('err');
-    		return res.sendStatus(500);
-    	}
-
-    	if ( !_t ) {
-    		console.log('no _t');
-    		return res.sendStatus(500);
-    	}
-
-    	console.log('_t -->', _t)
-    	
-    	res.send({
-    		tweets: _t.toClient()
-    	})
-
-    });
- 
+    Tweet.find(query, null, options, function(err, tweets) {
+        if (err) {
+            return res.sendStatus(500)
+        }
+        var responseTweets = tweets.map(function(tweet) {
+            return tweet.toClient()
+        })
+        res.send({
+            tweets: responseTweets
+        })
+    })
 });
 
 app.get('/api/tweets/:tweetId', function(req, res) {
-    var tweetId = req.params.tweetId, 
-    	Tweet = conn.model('Tweet');
+    var tweetId = req.params.tweetId,
+        Tweet = conn.model('Tweet');
 
-    	console.log('tweetId', tweetId)
-    	Tweet.findById(tweetId, function(err, _t) {
+    console.log('tweetId', tweetId)
+    Tweet.findById(tweetId, function(err, _t) {
 
-    		console.log('_t', _t);
+        console.log('_t', _t);
 
-    		if ( err ) {
-    			console.log(err || null)
-    			return res.sendStatus(500);
-    		}
+        if (err) {
+            console.log(err || null)
+            return res.sendStatus(500);
+        }
 
-    		if (!_t) {
-    			console.log('null')
-    			return res.sendStatus(404);
-    		}
+        if (!_t) {
+            console.log('null')
+            return res.sendStatus(404);
+        }
 
-    		res.send({
-    			tweet: _t.toClient()
-    		})
-    	})
+        res.send({
+            tweet: _t.toClient()
+        })
+    })
 
     // for (var i = 0; i < fixtures.tweets.length; i++) {
     //     if (fixtures.tweets[i].id === tweetId) {
