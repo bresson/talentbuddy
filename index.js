@@ -213,7 +213,9 @@ app.get('/api/tweets/:tweetId', function(req, res) {
 });
 
 app.delete('/api/tweets/:tweetId', ensureAuthentication, function(req, res) {
-    var tweetId = req.params.tweetId;
+    var tweetId = req.params.tweetId,
+    	Tweet = conn.model('Tweet');
+
     for (var i = 0; i < fixtures.tweets.length; i++) {
         if (fixtures.tweets[i].id == tweetId) {
             if (fixtures.tweets[i].userId === req.user.id) {
