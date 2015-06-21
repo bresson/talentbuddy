@@ -11,6 +11,9 @@ var express = require('express'),
     config = require('./config'),
     app = express();
 
+var ObjectId = require('mongoose').Types.ObjectId;
+
+
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(session({
@@ -92,7 +95,6 @@ app.post('/api/users', function(req, res) {
         })
     })
 })
-
 
 app.put('/api/users/:userId', ensureAuthentication, function(req, res) {
     var un = req.params.userId,
@@ -181,7 +183,7 @@ app.get('/api/tweets/:tweetId', function(req, res) {
     var tweetId = req.params.tweetId,
         Tweet = conn.model('Tweet');
 
-    console.log('tweetId', tweetId)
+    console.log('tweetId', tweetId);
     Tweet.findById(tweetId, function(err, _t) {
 
         console.log('_t', _t);
@@ -200,37 +202,39 @@ app.get('/api/tweets/:tweetId', function(req, res) {
             tweet: _t.toClient()
         })
     })
-
-    // for (var i = 0; i < fixtures.tweets.length; i++) {
-    //     if (fixtures.tweets[i].id === tweetId) {
-    //         return res.send({
-    //             tweet: fixtures.tweets[i]
-    //         })
-    //     }
-    // }
-
-    // return res.sendStatus(404);
 });
 
 app.delete('/api/tweets/:tweetId', ensureAuthentication, function(req, res) {
-    var tweetId = req.params.tweetId,
-    	Tweet = conn.model('Tweet');
+		var Tweet = conn.model('Tweet')
+	    , tweetId = req.params.tweetId
 
-    for (var i = 0; i < fixtures.tweets.length; i++) {
-        if (fixtures.tweets[i].id == tweetId) {
-            if (fixtures.tweets[i].userId === req.user.id) {
-                fixtures.tweets.splice(i, 1);
-                return res.sendStatus(200);
-            } else {
-                return res.sendStatus(403);
-            }
+	  if (!ObjectId.isValid(tweetId)) {
+	    return res.sendStatus(400)
+	  }
 
-        }
-    }
-    return res.sendStatus(404);
+	  Tweet.findById(tweetId, function(err, tweet) {
+	    if (err) {
+	      return res.sendStatus(500)
+	    }
+
+	    if (!tweet) {
+	      return res.sendStatus(404)
+	    }
+
+	    if (tweet.userId !== req.user.id) {
+	      return res.sendStatus(403)
+	    }
+
+	    Tweet.findByIdAndRemove(tweet._id, function(err) {
+	      if (err) {
+	        return res.sendStatus(500)
+	      }
+	      res.sendStatus(200)
+	    })
 });
 
 function ensureAuthentication(req, res, next) {
+	//console.log('req ensureAuthentication', req)
     if (!req.isAuthenticated()) {
         return res.sendStatus(403);
     }
