@@ -231,6 +231,7 @@ app.delete('/api/tweets/:tweetId', ensureAuthentication, function(req, res) {
 	      }
 	      res.sendStatus(200)
 	    })
+    });
 });
 
 function ensureAuthentication(req, res, next) {
