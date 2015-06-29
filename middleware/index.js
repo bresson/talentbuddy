@@ -5,7 +5,7 @@
     bodyParser = require('body-parser');
 
  module.exports = function(app) {
-	console.log(app)
+	console.log('app1', app)
 	app.use(bodyParser.json());
 	app.use(cookieParser());
 	app.use(session({
