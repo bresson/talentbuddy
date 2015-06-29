@@ -1,6 +1,7 @@
 var Schema = require('mongoose').Schema, 
 	bcrypt = require('bcrypt');
 
+console.log('user schema')
 var userSchema = new Schema ({
 	id: {type: String, unique: true}, 
 	name: String, 

@@ -6,24 +6,14 @@ var express = require('express'),
     passport = require('./auth'),
     bodyParser = require('body-parser'),
     conn = require('./db'),
-    //User = connection.model('User'), // works with pattern 1
-    //Tweet = connection.model("Tweet"), // works with pattern 1
+    ensureAuthentication = require('./middleware/ensureAuthentication'),
     config = require('./config'),
     app = express();
 
 var ObjectId = require('mongoose').Types.ObjectId;
 
+require('./middleware')(app)
 
-app.use(bodyParser.json());
-app.use(cookieParser());
-app.use(session({
-    secret: 'keyboard cat',
-    resave: false,
-    saveUninitialized: true
-}));
-
-app.use(passport.initialize());
-app.use(passport.session());
 
 app.post('/api/auth/login', function(req, res, next) {
     console.log(req.body.username, req.body.password)
@@ -79,9 +69,13 @@ app.post('/api/tweets', ensureAuthentication, function(req, res) {
 
 // mentor solution
 app.post('/api/users', function(req, res) {
+    console.log('post user')
+
     var user = req.body.user,
         User = conn.model('User')
 
+
+    console.log('post user 2')
     User.create(user, function(err, user) {
         if (err) {
             var code = err.code === 11000 ? 409 : 500
@@ -234,13 +228,13 @@ app.delete('/api/tweets/:tweetId', ensureAuthentication, function(req, res) {
     });
 });
 
-function ensureAuthentication(req, res, next) {
-	//console.log('req ensureAuthentication', req)
-    if (!req.isAuthenticated()) {
-        return res.sendStatus(403);
-    }
-    return next();
-}
+// function ensureAuthentication(req, res, next) {
+
+//     if (!req.isAuthenticated()) {
+//         return res.sendStatus(403);
+//     }
+//     return next();
+// }
 
 var server = app.listen(config.get('server:port'), config.get('server:host'));
 
