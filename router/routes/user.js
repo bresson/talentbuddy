@@ -4,6 +4,27 @@ var express = require('express'),
 	conn = require('../../db'),
 	ensureAuthentication = require('../../middleware/ensureAuthentication');
 
+
+router.post('/:userId/follow', ensureAuthentication, function(req, res) {
+  var User = conn.model('User')
+    , userId = req.params.userId
+
+  User.findByUserId(userId, function(err, user) {
+    if (err) {
+      return res.sendStatus(500)
+    }
+    if (!user) {
+      return res.sendStatus(403)
+    }
+    req.user.follow(userId, function(err) {
+      if (err) {
+        return res.sendStatus(500)
+      }
+      res.sendStatus(200)
+    })
+  })
+});
+
 router.post('/', function(req, res) {
     console.log('post user')
 

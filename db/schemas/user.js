@@ -20,7 +20,16 @@ userSchema.pre('save', function(next) {
     _this.password = passwordHash
     next()
   })
-})
+});
+
+userSchema.statics.findByUserId = function(id, done) {
+  this.findOne({ id: id }, done)
+}
+
+userSchema.methods.follow = function(userId, done) {
+  var update = { $addToSet: { followingIds: userId } }
+  this.model('User').findByIdAndUpdate(this._id, update, done)
+}
 
 userSchema.methods.toClient = function() {
   console.log('========= userSchema.toClient', this);
