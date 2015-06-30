@@ -1,6 +1,7 @@
-var express = require('express'),
-    router = express.Router(),
-    ensureAuthentication = require('../../middleware/ensureAuthentication');
+var express = require('express')
+  , router = express.Router()
+  , conn = require('../../db')
+  , ensureAuthentication = require('../../middleware/ensureAuthentication')
 
 
 router.post('/', ensureAuthentication, function(req, res) {

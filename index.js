@@ -1,23 +1,12 @@
-var express = require('express'),
-    fixtures = require('./fixtures'),
-    shortId = require('shortid'),
-    cookieParser = require('cookie-parser'),
-    session = require('express-session'),
-    passport = require('./auth'),
-    bodyParser = require('body-parser'),
-    conn = require('./db'),
-    ensureAuthentication = require('./middleware/ensureAuthentication'),
-    config = require('./config'),
-    app = express();
+var express = require('express')
+  , app = express()
+  , config = require('./config')
 
-var ObjectId = require('mongoose').Types.ObjectId;
+require('./middleware')(app)
+require('./router')(app)
 
-require('./middleware')(app);
-
-console.log('MAIN JS');
-require('./router')(app);
-console.log('what next')
-
+require('./middleware')(app)
+require('./router')(app)
 
 
 // function ensureAuthentication(req, res, next) {

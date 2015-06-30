@@ -1,6 +1,7 @@
 
 var express = require('express'), 
 	router = express.Router(), 
+	conn = require('../../db'),
 	ensureAuthentication = require('../../middleware/ensureAuthentication');
 
 router.post('/', function(req, res) {
@@ -60,7 +61,7 @@ router.get('/:userId', function(req, res) {
             return res.sendStatus(404);
         }
         return res.send({
-            user: user
+            user: user.toClient()
         })
     });
 

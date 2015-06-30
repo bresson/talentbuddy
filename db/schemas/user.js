@@ -22,6 +22,14 @@ userSchema.pre('save', function(next) {
   })
 })
 
+userSchema.methods.toClient = function() {
+  console.log('========= userSchema.toClient', this);
+  return {
+    id: this.id, 
+    name: this.name
+  }
+}
+
 // my solution - works
 // but requires genSalt method 
 // userSchema.pre('save', function(next) {
