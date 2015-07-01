@@ -31,6 +31,23 @@ userSchema.methods.follow = function(userId, done) {
   this.model('User').findByIdAndUpdate(this._id, update, done)
 }
 
+userSchema.methods.unfollow = function(userid, done) {
+  var update = { $pull: {followingIds: userid}};
+  this.model('User').findByIdAndUpdate(this._id, update, done);
+}
+
+// show friends
+// get array of friends id from followingIds
+// loop through array and pull name & id 
+// push each name & id as object into an array
+// return array at end
+
+userSchema.methods.friends = function(userid, done) {
+  var friendsId = this.model('User').findOne({'id': userid}, 'followingIds');
+  var friends = { $in : { id: friendsId }}
+  return friends
+}
+
 userSchema.methods.toClient = function() {
   console.log('========= userSchema.toClient', this);
   return {

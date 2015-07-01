@@ -4,6 +4,30 @@ var express = require('express'),
 	conn = require('../../db'),
 	ensureAuthentication = require('../../middleware/ensureAuthentication');
 
+router.get('/:userId/friends', ensureAuthentication, function(req, res) {
+     var User = conn.model('User')
+    , userId = req.params.userId; 
+
+    User.findByUserId(userId, function(err, user) {
+        if ( err ) {
+            return sendStatus(500);
+        }
+
+        if ( !user ) {
+            return sendStatus(404);
+        }
+
+        req.user.friends(userId, function(err) {
+            if ( err ) {
+                return res.sendStatus(500);
+            }
+
+            // res.send({
+            //     users: 
+            // })
+        });
+    })
+})
 
 router.post('/:userId/follow', ensureAuthentication, function(req, res) {
   var User = conn.model('User')
@@ -16,6 +40,7 @@ router.post('/:userId/follow', ensureAuthentication, function(req, res) {
     if (!user) {
       return res.sendStatus(403)
     }
+    // how is user found in req object and how does it communicate with userSchema?
     req.user.follow(userId, function(err) {
       if (err) {
         return res.sendStatus(500)
@@ -24,6 +49,29 @@ router.post('/:userId/follow', ensureAuthentication, function(req, res) {
     })
   })
 });
+
+router.post('/:userId/unfollow', ensureAuthentication, function(req, res) {
+    var User = conn.model('User'),
+        userId = req.params.userId;
+
+    User.findByUserId(userId, function(err, user) {
+        if ( err ) {
+            return res.sendStatus(500);
+        }
+
+        if ( !user ) {
+            return res.sendStatus(500);
+        }
+
+        req.user.unfollow(userId, function(err) {
+            if ( err ) {
+                return res.sendStatus(500);
+            }
+
+            res.sendStatus(200);
+        })
+    })
+})
 
 router.post('/', function(req, res) {
     console.log('post user')
